@@ -4,14 +4,14 @@ from src import calc_sales_summary
 from src import get_docid
 from src import get_csvdata
 from src import datetime_calc
-from src import calc_sales_summary
+from src import calc_equity_to_asset_ratio
 from src import calc_roa
 from src import calc_roe
 from src import get_randd
 from src import calc_equity_to_asset_ratio
 from src.format_data import format_data
+from src import directors_rate
 import os
-
 
 def apply_func(row, database1_list, database2_list):
     if f'{row['docID']}.pickle' in database1_list:
@@ -31,6 +31,8 @@ def apply_func(row, database1_list, database2_list):
     row = calc_roa.calc_net_assets(row, data)
     row = calc_roa.calc_total_assets(row, data)
     row = calc_roa.calc_ordinary_income(row, data)
+    row = directors_rate.get_directors_info(row, data)
+    row = calc_equity_to_asset_ratio.calc_equity_to_asset_ratio(row, data)
     return row
 
 if __name__ == '__main__':
@@ -50,10 +52,8 @@ if __name__ == '__main__':
     test = test[['secCode', 'year', 'docID', 'name']]
     one = os.listdir('database')
     two = os.listdir('database2')
-    test = test[:1]
+    test = test[:10]
     test = test.apply(apply_func, axis=1, database1_list=one, database2_list=two)
-    print(test.iloc[0, :])
-
     exit()
     # '/売上高', '/研究開発費', '/経常利益', '/純資産額' ,'/総資産額', '自己資本比率','/ROE, '従業員数'
     na_data = all_data[all_data['売上高'].isna()]

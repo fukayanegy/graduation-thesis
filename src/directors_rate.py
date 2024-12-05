@@ -1,40 +1,42 @@
 import pandas as pd
+import re
+from src import calc_utils
 
-def male(data):
-    element_id = 'jpcrp_cor:NumberOfMaleDirectorsAndOtherOfficers'
-    context_id = 'FilingDateInstant'
-    rAndD_row = data[(data['要素ID'] == element_id) & (data['コンテキストID'] == context_id)].reset_index(drop=True)
-    if len(rAndD_row) == 0:
-        return None
-    rAndD = rAndD_row.loc[0, '値']
-    try:
-        rAndD = int(rAndD)
-    except ValueError:
-        rAndD = 0
-    return rAndD
+def zenkaku_to_hankaku(text):
+    zenkaku_to_hankaku_table = str.maketrans('０１２３４５６７８９　－―（）', '0123456789 00()')
+    result = text.translate(zenkaku_to_hankaku_table)
+    result = re.sub(r'\s+', ' ', result)
+    return result
 
-def female(data):
-    element_id = 'jpcrp_cor:NumberOfFemaleDirectorsAndOtherOfficers'
-    context_id = 'FilingDateInstant'
-    rAndD_row = data[(data['要素ID'] == element_id) & (data['コンテキストID'] == context_id)].reset_index(drop=True)
-    if len(rAndD_row) == 0:
-        return None
-    rAndD = rAndD_row.loc[0, '値']
-    try:
-        rAndD = int(rAndD)
-    except ValueError:
-        rAndD = 0
-    return rAndD
+def extract_directors_info(data):
+    pattern = r"男性\s*(\d+)名\s*女性\s*(\d+)名.*?比率\s*([0-9.]+)％"
 
-def female_rete(data):
-    element_id = 'jpcrp_cor:RatioOfFemaleDirectorsAndOtherOfficers'
+    for line in data:
+        match = re.search(pattern, line)
+        if match:
+            male = match.group(1)
+            female = match.group(2)
+            ratio = match.group(3)
+            # return male, female, ratio
+    return None, None, None
+
+def get_directors_info(row, data):
+    ele_id1 = 'jpcrp_cor:NumberOfMaleDirectorsAndOtherOfficers'
+    ele_id2 = 'jpcrp_cor:NumberOfFemaleDirectorsAndOtherOfficers'
+    ele_id3 = 'jpcrp_cor:RatioOfFemaleDirectorsAndOtherOfficers'
+    ele_id4 = 'jpcrp_cor:InformationAboutOfficersTextBlock'
     context_id = 'FilingDateInstant'
-    rAndD_row = data[(data['要素ID'] == element_id) & (data['コンテキストID'] == context_id)].reset_index(drop=True)
-    if len(rAndD_row) == 0:
-        return None
-    rAndD = rAndD_row.loc[0, '値']
-    try:
-        rAndD = float(rAndD)
-    except ValueError:
-        rAndD = 0
-    return rAndD
+
+    row['役員のうち男性の人数'] = calc_utils.calc_row_string_data(data, ele_id1, context_id)
+    row['役員のうち女性の人数'] = calc_utils.calc_row_string_data(data, ele_id2, context_id)
+    row['役員のうち女性の割合'] = calc_utils.calc_row_string_data(data, ele_id3, context_id)
+
+    text_data = calc_utils.calc_row_string_data(data, ele_id4, context_id)
+    text_data = zenkaku_to_hankaku(text_data)
+    row['役員の状況'] = text_data
+    return row
+
+if __name__ == '__main__':
+    text = '(2) 【役員の状況】 役員一覧男性13名 女性 2名 (役員のうち女性の比率13％)'
+    print(zenkaku_to_hankaku(text))
+    # print(extract_directors_info(text))

@@ -71,7 +71,6 @@ def convert_amount_to_number(amount):
     return number
 
 def zenkaku_to_hankaku(text):
-    # 全角数字から半角数字へのマッピングテーブル
     zenkaku_to_hankaku_table = str.maketrans('０１２３４５６７８９　－―（）', '0123456789 00()')
     return text.translate(zenkaku_to_hankaku_table)
 
