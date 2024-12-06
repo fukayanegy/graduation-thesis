@@ -101,24 +101,25 @@ def calc_RandD(row):
     '''
     研究開発費
     '''
+    text_block_2 = '一般管理費及び当期製造費用に含まれる研究開発費 [テキストブロック]'
     if row['研究開発費、研究開発活動'] != None:
         row['RandD'] = row['研究開発費、研究開発活動']
         row['RandD_bool'] = True
     elif row['研究開発費、販売費及び一般管理費'] != None:
         row['RandD'] = row['研究開発費、販売費及び一般管理費']
         row['RandD_bool'] = True
-    elif row['研究開発活動_text']:
-        row['RandD'] = search_yen(row['研究開発活動_text'])
+    elif row['研究開発活動 [テキストブロック]']:
+        row['RandD'] = search_yen(row['研究開発活動 [テキストブロック]'])
         if row['RandD'] == None:
             row['RandD_bool'] = False
         else:
             row['RandD_bool'] = True
-    elif row['text_block'] != None:
-        if search_str(row['text_block']):
+    elif row[text_block_2] != None:
+        if search_str(row[text_block_2]):
             row['RandD'] = 0
             row['RandD_bool'] = False
         else:
-            row['RandD'] = search_yen(row['研究開発活動_text'])
+            row['RandD'] = search_yen(row['研究開発活動 [テキストブロック]'])
             row['RandD_bool'] = True
             if row['RandD'] == None:
                 row['RandD'] = 0

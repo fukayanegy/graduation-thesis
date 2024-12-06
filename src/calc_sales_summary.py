@@ -75,5 +75,6 @@ def get_netsales(row, data):
     return row
 
 def calc_sales_summary(row):
-    row['売上高_result'] = row['']
+    if row['is_consolidated']:
+        row['売上高_result'] = row['']
     return row
