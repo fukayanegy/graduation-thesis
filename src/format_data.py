@@ -41,6 +41,7 @@ def format_data(data):
             'jpcrp_cor:NumberOfEmployees',
             'jpcrp_cor:AverageAgeYearsInformationAboutReportingCompanyInformationAboutEmployees',
             'jpcrp_cor:AverageLengthOfServiceYearsInformationAboutReportingCompanyInformationAboutEmployees',
+            'jpcrp_cor:AverageAnnualSalaryInformationAboutReportingCompanyInformationAboutEmployees',
             ]
     required_context = [
             'CurrentYearInstant',

@@ -73,3 +73,7 @@ def get_netsales(row, data):
     elif row['name'] == 'レイズネクスト':
         row['売上高'], row['売上高_nc'] = calc_row_data_str(data, 'NetSalesOfCompletedConstructionContractsSummaryOfBusinessResults')
     return row
+
+def calc_sales_summary(row):
+    row['売上高_result'] = row['']
+    return row

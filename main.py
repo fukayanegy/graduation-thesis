@@ -11,6 +11,7 @@ from src import get_randd
 from src import calc_equity_to_asset_ratio
 from src.format_data import format_data
 from src import directors_rate
+from src import employees
 import os
 
 def apply_func(row, database1_list, database2_list):
@@ -33,27 +34,12 @@ def apply_func(row, database1_list, database2_list):
     row = calc_roa.calc_ordinary_income(row, data)
     row = directors_rate.get_directors_info(row, data)
     row = calc_equity_to_asset_ratio.calc_equity_to_asset_ratio(row, data)
+    row = employees.calc_employees(row, data)
     return row
 
 if __name__ == '__main__':
-    data = pd.read_pickle('data3/docid_perfect_list.pickle')
-    old_data = pd.read_pickle('data/final_data.pickle')
-    data = data.reset_index()
-    old_data = old_data.reset_index()
-
-    data['secCode'] = data['secCode'].astype('str')
-    old_data['secCode'] = old_data['secCode'].astype('str')
-    data['year'] = data['year'].astype('int')
-    old_data['year'] = old_data['year'].astype('int')
-    all_data = pd.merge(data, old_data, on=['secCode', 'year'], how='left')
-    all_data = all_data.rename(columns={'docID_x': 'docID'})
-
-    test = all_data[all_data['year'] == 2020]
-    test = test[['secCode', 'year', 'docID', 'name']]
-    one = os.listdir('database')
-    two = os.listdir('database2')
-    test = test[:10]
-    test = test.apply(apply_func, axis=1, database1_list=one, database2_list=two)
+    data = pd.read_pickle('data3/all_data.pickle')
+    print(data.isna().sum())
     exit()
     # '/売上高', '/研究開発費', '/経常利益', '/純資産額' ,'/総資産額', '自己資本比率','/ROE, '従業員数'
     na_data = all_data[all_data['売上高'].isna()]

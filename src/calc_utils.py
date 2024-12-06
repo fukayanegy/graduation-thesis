@@ -44,7 +44,7 @@ def calc_row_string_data(data, element_id, context_id):
     elif len(data) == 1:
         result = data.loc[0, '値']
     else:
-        print(len(data))
+        # print(len(data))
         result = data.loc[0, '値']
     return result
 
