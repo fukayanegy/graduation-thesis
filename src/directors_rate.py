@@ -7,6 +7,13 @@ from src import calc_utils
 2557    S10077SF    ソリトンシステムズ      2016    男7, 女2, 比率22.2%
 10190   S1009Y08    オプテックスグループ    2017    男9, 女0, 比率00.0%
 11793   S100DHU4    オーバル                2018    男6, 女0, 比率00.0%
+
+result.loc[2557 , 'male_num'] = 7
+result.loc[10190, 'male_num'] = 9
+result.loc[11793, 'male_num'] = 6
+result.loc[2557 , 'female_num'] = 2
+result.loc[10190, 'female_num'] = 0
+result.loc[11793, 'female_num'] = 0
 '''
 
 def zenkaku_to_hankaku(text):

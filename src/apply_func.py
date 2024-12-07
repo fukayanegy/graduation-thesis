@@ -3,6 +3,7 @@ from src import calc_sales_summary
 from src import calc_equity_to_asset_ratio
 from src import calc_roa
 from src import calc_roe
+from src import calc_RandD
 from src import get_randd
 from src import calc_equity_to_asset_ratio
 from src.format_data import format_data
@@ -45,7 +46,70 @@ def apply_func_add(row, database1_list, database2_list):
     data = format_data(data)
     return row
 
+def calc_RandDall(row):
+    tmp = calc_RandD.search_yen(row['研究開発活動 [テキストブロック]'])
+    row['RandD_all'] = tmp
+    return row
+
+def calc_RandD_general(row):
+    tmp = calc_RandD.search_yen(row['研究開発費、販売費及び一般管理費 [テキストブロック]'])
+    row['RandD_general'] = tmp
+    return row
+
 def format_values(data):
+    # 従業員数
+    result = pd.DataFrame({})
+    result['secCode'] = data['secCode']
+    result['year'] = data['year']
+    result['docID'] = data['docID']
+    result.loc[:, '従業員数'] = data.loc[:, '従業員数']
+    result.loc[(result['従業員数'].isna()), '従業員数'] = data.loc[(result['従業員数'].isna()), '従業員数_nc']
+    result['name'] = data['name']
+    return result
+
+def format_values_RandD(data):
+    general_textblock = '一般管理費及び当期製造費用に含まれる研究開発費 [テキストブロック]'
+    result = pd.DataFrame({})
+    result['secCode'] = data['secCode']
+    result['year'] = data['year']
+    result['docID'] = data['docID']
+    result.loc[:, 'RandD_all'] = data.loc[:, '研究開発費、研究開発活動']
+    result[(result['RandD_all'].isna()) & (~data['研究開発活動 [テキストブロック]'].isna())] = data[(result['RandD_all'].isna()) & (~data['研究開発活動 [テキストブロック]'].isna())].apply(calc_RandDall, axis=1)
+    result.loc[:, 'RandD_general'] = data.loc[:, '研究開発費、販売費及び一般管理費']
+    # result[(result['RandD_general'].isna()) & (~data[general_textblock].isna())] = data[(result['RandD_general'].isna()) & (~data[general_textblock].isna())].apply(calc_RandD_general, axis=1)
+    return result
+
+def format_values_directors(data):
+    result = pd.DataFrame({})
+    result['secCode'] = data['secCode']
+    result['year'] = data['year']
+    result['docID'] = data['docID']
+
+    result.loc[:, 'male_num'] = data.loc[:, '役員のうち男性の人数']
+    result.loc[:, 'female_num'] = data.loc[:, '役員のうち女性の人数']
+
+    result['name'] = data['name']
+    return result
+
+
+def format_values_tmp(data):
+    result = pd.DataFrame({})
+    result['secCode'] = data['secCode']
+    result['year'] = data['year']
+    result['docID'] = data['docID']
+
+    result.loc[(data['is_consolidated']), '自己資本比率'] = data.loc[(data['is_consolidated']), '自己資本比率_br']
+    result.loc[(data['is_consolidated']) & (result['自己資本比率'].isna()), '自己資本比率'] = data.loc[(data['is_consolidated']), '自己資本比率']
+    result.loc[(data['is_consolidated']) & (result['自己資本比率'].isna()), '自己資本比率'] = data.loc[(data['is_consolidated']), '自己資本比率_br_nc']
+
+    result.loc[(~data['is_consolidated']), '自己資本比率'] = data.loc[(~data['is_consolidated']), '自己資本比率_br_nc']
+    result.loc[(~data['is_consolidated']) & (result['自己資本比率'].isna()), '自己資本比率'] = data.loc[(~data['is_consolidated']), '自己資本比率_nc']
+
+    result['name'] = data['name']
+    return result
+
+
+def format_ROE(data):
     result = pd.DataFrame({})
     result['secCode'] = data['secCode']
     result['year'] = data['year']
