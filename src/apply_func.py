@@ -46,14 +46,29 @@ def apply_func_add(row, database1_list, database2_list):
     data = format_data(data)
     return row
 
-def calc_RandDall(row):
+def calc_RandDall(row, ):
+    if (row['RandD_all'] != None):
+        row['RandD_all_text'] = row['RandD_all']
+        return row
+    if (row['研究開発活動 [テキストブロック]'] == None):
+        row['RandD_all_text'] = None
+        return row
     tmp = calc_RandD.search_yen(row['研究開発活動 [テキストブロック]'])
-    row['RandD_all'] = tmp
+    if tmp == None:
+        row['RandD_all_text'] = 0
+    else:
+        row['RandD_all_text'] = tmp
     return row
 
 def calc_RandD_general(row):
-    tmp = calc_RandD.search_yen(row['研究開発費、販売費及び一般管理費 [テキストブロック]'])
-    row['RandD_general'] = tmp
+    general_textblock = '一般管理費及び当期製造費用に含まれる研究開発費 [テキストブロック]'
+    if row['RandD_general'] != None:
+        row['RandD_general_text'] = row['RandD_general']
+        return row
+    if (row[general_textblock] == None):
+        row['RandD_general_text'] = None
+        return row
+    s = (calc_RandD.search_yen2(row[general_textblock]))
     return row
 
 def format_values(data):
@@ -74,9 +89,15 @@ def format_values_RandD(data):
     result['year'] = data['year']
     result['docID'] = data['docID']
     result.loc[:, 'RandD_all'] = data.loc[:, '研究開発費、研究開発活動']
-    result[(result['RandD_all'].isna()) & (~data['研究開発活動 [テキストブロック]'].isna())] = data[(result['RandD_all'].isna()) & (~data['研究開発活動 [テキストブロック]'].isna())].apply(calc_RandDall, axis=1)
+
+    data = pd.concat([data, result[['RandD_all']]], axis=1)
+
+    # result = data.apply(calc_RandDall, axis=1)
     result.loc[:, 'RandD_general'] = data.loc[:, '研究開発費、販売費及び一般管理費']
-    # result[(result['RandD_general'].isna()) & (~data[general_textblock].isna())] = data[(result['RandD_general'].isna()) & (~data[general_textblock].isna())].apply(calc_RandD_general, axis=1)
+
+    data = pd.concat([data, result[['RandD_general']]], axis=1)
+
+    result = data.apply(calc_RandD_general, axis=1)
     return result
 
 def format_values_directors(data):

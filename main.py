@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from src.apply_func import apply_func
+from src.apply_func import format_values_RandD
 from src.apply_func import format_values
 from src.format_data import format_data
 from src.download_excel import download_excel
@@ -24,22 +24,19 @@ def apply_func_add(row, database1_list, database2_list):
     return row
 
 if __name__ == '__main__':
-    # download_excel('S100OCUV')
-    # download_excel('S100QZOM')
-    # download_excel('S100OGUS')
-    # download_excel('S100R41K')
-    # 926628000000
     data = pd.read_pickle('data3/all_data2.pickle')
     finish_data = pd.read_pickle('data3/finish_data3.pickle')
-    print(finish_data.loc[0, :])
-    exit()
+    # finish_data.to_excel('/mnt/c/WSLTMPDIR/data.xlsx', index=False)
+    # exit()
 
-    column_names = ['従業員数', '従業員数_nc']
+    column_names = ['研究開発費、研究開発活動', '研究開発費、販売費及び一般管理費']
     for column_name in column_names:
         data = convert_vals.convert_vals(data, column_name, 'int')
     data = data.replace({np.nan: None})
-    result = format_values(data)
-    finish_data['従業員数'] = result['従業員数']
+    result = format_values_RandD(data)
+    # column_names = ['RandD_all', 'RandD_all_text']
+    # for column_name in column_names:
+    #     data = convert_vals.convert_vals(data, column_name, 'int')
 
     # i = int(input())
     # j = tmp.index[i]
@@ -54,23 +51,3 @@ if __name__ == '__main__':
     # list2 = os.listdir('database2')
     # data = data.apply(apply_func, axis=1, database1_list=list1, database2_list=list2)
     # data.to_pickle('data3/all_data3.pickle')
-
-
-'''
-Index(['secCode', 'year', 'docID', 'name', 'market_type', 'is_consolidated',
-       '33indus', '17indus', 'scale_code', 'is_csv', '売上高', '売上高_nc',
-       '売上高、経営指標等', '売上高、経営指標等_nc', '売上収益、経営指標等', '売上収益、経営指標等_nc',
-       '売上収益（IFRS）、経営指標等', '売上収益（IFRS）、経営指標等_nc', '経常収益、経営指標等',
-       '経常収益、経営指標等_nc', '営業収入、経営指標等', '営業収入、経営指標等_nc', '経常収益、保険業',
-       '経常収益、保険業_nc', '売上高（US GAAP）、経営指標等', '売上高（US GAAP）、経営指標等_nc',
-       '売上高_other', '売上高_other_nc', '売上高_other_ifrs', '売上高_other_ifrs_nc',
-       'ROE', 'ROE_nc', 
-       '純資産額', '純資産額_nc', '純資産額_br', '純資産額_br_nc',
-       '総資産額', '総資産額_nc', '総資産額_br', '総資産額_br_nc',
-       '経常利益', '経常利益_nc', '経常利益_br', '経常利益_br_nc',
-       '自己資本比率', '自己資本比率_nc', '自己資本比率_br', '自己資本比率_br_nc',
-       '役員のうち男性の人数', '役員のうち女性の人数', '役員のうち女性の割合',
-       '研究開発費、研究開発活動', '研究開発費、販売費及び一般管理費', '研究開発活動 [テキストブロック]', '一般管理費及び当期製造費用に含まれる研究開発費 [テキストブロック]',
-       '従業員数', '平均年齢', '平均勤続年数', '平均年間給与', '従業員数_nc',
-       '平均年齢_nc', '平均勤続年数_nc', '平均年間給与_nc'],
-'''

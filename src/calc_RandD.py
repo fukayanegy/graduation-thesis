@@ -97,34 +97,17 @@ def search_yen(text):
         return None
     return max(result)
 
-def calc_RandD(row):
-    '''
-    研究開発費
-    '''
-    text_block_2 = '一般管理費及び当期製造費用に含まれる研究開発費 [テキストブロック]'
-    if row['研究開発費、研究開発活動'] != None:
-        row['RandD'] = row['研究開発費、研究開発活動']
-        row['RandD_bool'] = True
-    elif row['研究開発費、販売費及び一般管理費'] != None:
-        row['RandD'] = row['研究開発費、販売費及び一般管理費']
-        row['RandD_bool'] = True
-    elif row['研究開発活動 [テキストブロック]']:
-        row['RandD'] = search_yen(row['研究開発活動 [テキストブロック]'])
-        if row['RandD'] == None:
-            row['RandD_bool'] = False
-        else:
-            row['RandD_bool'] = True
-    elif row[text_block_2] != None:
-        if search_str(row[text_block_2]):
-            row['RandD'] = 0
-            row['RandD_bool'] = False
-        else:
-            row['RandD'] = search_yen(row['研究開発活動 [テキストブロック]'])
-            row['RandD_bool'] = True
-            if row['RandD'] == None:
-                row['RandD'] = 0
-                row['RandD_bool'] = False
+def search_yen2(text):
+    text = zenkaku_to_hankaku(text)
+    pattern01 = r'百万円\s*(.+)百万円'
+    result = re.search(pattern01, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str.replace(',', ''))
+        except ValueError:
+            value = value_str
+            print(value)
     else:
-        row['RandD'] = 0
-        row['RandD_bool'] = False
-    return row
+        value = None
+    return value
