@@ -71,7 +71,7 @@ def convert_amount_to_number(amount):
     return number
 
 def zenkaku_to_hankaku(text):
-    zenkaku_to_hankaku_table = str.maketrans('０１２３４５６７８９　－―（）', '0123456789 00()')
+    zenkaku_to_hankaku_table = str.maketrans('０１２３４５６７８９　－―-（）', '0123456789 000()')
     return text.translate(zenkaku_to_hankaku_table)
 
 def search_str(text):
@@ -89,25 +89,221 @@ def search_str(text):
 
 def search_yen(text):
     text = zenkaku_to_hankaku(text)
-    pattern01 = r'(\d{1,3}(,\d{3})*|[一二三四五六七八九十百千万億]+)(億)?(\d{1,3}(,\d{3})*|[一二三四五六七八九十百千万]+)?(百万|千)?円'
-    matches = re.finditer(pattern01, text)
-    amounts = [match.group(0) for match in matches]
-    result = [j_to_n(amount) for amount in amounts]
-    if len(result) == 0:
+    text = text.replace(',', '')
+    text = text.replace(' ', '')
+    values = []
+
+    pattern01 = r'(\d+)十億円'
+    matches = re.findall(pattern01, text)
+    if matches:
+        for matche in matches:
+            try:
+                value = int(matche) * 1000000000
+                values.append(value)
+            except ValueError:
+                pass
+
+    pattern01 = r'(\d+)億円'
+    matches = re.findall(pattern01, text)
+    if matches:
+        for matche in matches:
+            try:
+                value = int(matche) * 100000000
+                values.append(value)
+            except ValueError:
+                pass
+
+    pattern01 = r'(\d+)百万円'
+    matches = re.findall(pattern01, text)
+    if matches:
+        for matche in matches:
+            try:
+                value = int(matche) * 1000000
+                values.append(value)
+            except ValueError:
+                pass
+    pattern01 = r'(\d+)千円'
+    matches = re.findall(pattern01, text)
+    if matches:
+        for matche in matches:
+            try:
+                value = int(matche) * 1000
+                values.append(value)
+            except ValueError:
+                pass
+    if len(values) != 0:
+        return max(values)
+    elif len(text) < 100:
         return None
-    return max(result)
+    elif '円' in text:
+        print(text)
+        print()
+    else:
+        return None
+    return None
 
 def search_yen2(text):
     text = zenkaku_to_hankaku(text)
-    pattern01 = r'百万円\s*(.+)百万円'
+    text = text.replace(',', '')
+    text = text.replace(' ', '')
+    pattern01 = r'前連結会計年度.+当連結会計年度.+(\d+)百万円(\d+)百万円'
     result = re.search(pattern01, text)
+    if result:
+        value_str = result.group(2)
+        try:
+            value = int(value_str)
+            return value * 1000000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern02 = r'前連結会計年度.+当連結会計年度.+(\d+)千円(\d+)千円'
+    result = re.search(pattern02, text)
+    if result:
+        value_str = result.group(2)
+        try:
+            value = int(value_str)
+            return value * 1000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern03 = r'当連結会計年度\(.+\)(\d+)千円'
+    result = re.search(pattern03, text)
     if result:
         value_str = result.group(1)
         try:
-            value = int(value_str.replace(',', ''))
+            value = int(value_str)
+            return value * 1000
         except ValueError:
             value = value_str
-            print(value)
     else:
-        value = None
+        value = text
+
+    pattern03 = r'当連結会計年度\(.+\)(\d+)百万円'
+    result = re.search(pattern03, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern04 = r'研究開発費の総額は、(\d+)千円'
+    result = re.search(pattern04, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern04 = r'研究開発費の総額は、(\d+)百万円'
+    result = re.search(pattern04, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern05 = r'研究開発費は、(\d+)百万円'
+    result = re.search(pattern05, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern06 = r'\(単位：百万円\)前連結会計年度\(.+\)当連結会計年度\(.+\)研究開発費(\d+)'
+    result = re.search(pattern06, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern07 = r'\(単位：百万円\)前連結会計年度\(.+\)当連結会計年度\(.+\)研究開発費総額(\d+)'
+    result = re.search(pattern07, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern07 = r'\(単位：百万円\)前連結会計年度\(.+\)当連結会計年度\(.+\).+合計(\d+)'
+    result = re.search(pattern07, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern06 = r'\(単位：千円\)前連結会計年度\(.+\)当連結会計年度\(.+\)研究開発費(\d+)'
+    result = re.search(pattern06, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern07 = r'\(単位：千円\)前連結会計年度\(.+\)当連結会計年度\(.+\)研究開発費総額(\d+)'
+    result = re.search(pattern07, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
+
+    pattern07 = r'\(単位：千円\)前連結会計年度\(.+\)当連結会計年度\(.+\).+合計(\d+)'
+    result = re.search(pattern07, text)
+    if result:
+        value_str = result.group(1)
+        try:
+            value = int(value_str)
+            return value * 1000
+        except ValueError:
+            value = value_str
+    else:
+        value = text
     return value
+
+if __name__ == '__main__':
+    text = '※2一般管理費に含まれる研究開発費の総額は、次のとおりであります。当連結会計年度(自平成26年1月1日至平成26年12月31日)203百万円'
+    result = search_yen2(text)
+    print(result)

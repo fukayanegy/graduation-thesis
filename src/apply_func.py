@@ -54,10 +54,7 @@ def calc_RandDall(row, ):
         row['RandD_all_text'] = None
         return row
     tmp = calc_RandD.search_yen(row['研究開発活動 [テキストブロック]'])
-    if tmp == None:
-        row['RandD_all_text'] = 0
-    else:
-        row['RandD_all_text'] = tmp
+    row['RandD_all_text'] = tmp
     return row
 
 def calc_RandD_general(row):
@@ -68,7 +65,11 @@ def calc_RandD_general(row):
     if (row[general_textblock] == None):
         row['RandD_general_text'] = None
         return row
-    s = (calc_RandD.search_yen2(row[general_textblock]))
+    result = (calc_RandD.search_yen2(row[general_textblock]))
+    if type(result) == 'int':
+        row['RandD_general_text'] = result
+    else:
+        row['RandD_general_text'] = None
     return row
 
 def format_values(data):
@@ -83,22 +84,10 @@ def format_values(data):
     return result
 
 def format_values_RandD(data):
-    general_textblock = '一般管理費及び当期製造費用に含まれる研究開発費 [テキストブロック]'
-    result = pd.DataFrame({})
-    result['secCode'] = data['secCode']
-    result['year'] = data['year']
-    result['docID'] = data['docID']
-    result.loc[:, 'RandD_all'] = data.loc[:, '研究開発費、研究開発活動']
+    data = data.apply(calc_RandDall, axis=1)
+    # data = data.apply(calc_RandD_general, axis=1)
 
-    data = pd.concat([data, result[['RandD_all']]], axis=1)
-
-    # result = data.apply(calc_RandDall, axis=1)
-    result.loc[:, 'RandD_general'] = data.loc[:, '研究開発費、販売費及び一般管理費']
-
-    data = pd.concat([data, result[['RandD_general']]], axis=1)
-
-    result = data.apply(calc_RandD_general, axis=1)
-    return result
+    return data
 
 def format_values_directors(data):
     result = pd.DataFrame({})
