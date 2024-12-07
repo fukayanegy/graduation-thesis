@@ -6,11 +6,13 @@ def format_data(data):
             'jppfs_cor:NetSales',
             'jpcrp_cor:NetSalesSummaryOfBusinessResults',
             'jpcrp_cor:OperatingRevenue1SummaryOfBusinessResults',
+            'jpcrp_cor:OperatingRevenue2SummaryOfBusinessResults',
             'jpcrp_cor:RevenueIFRSSummaryOfBusinessResults',
             'jpcrp_cor:OrdinaryIncomeSummaryOfBusinessResults',
-            'jpcrp_cor:OperatingRevenue2SummaryOfBusinessResults',
             'jppfs_cor:OperatingIncomeINS',
-            # 'NetSalesOfCompletedConstructionContractsSummary',
+            'jpcrp_cor:RevenuesUSGAAPSummaryOfBusinessResults',
+            'jpcrp_cor:GrossOperatingRevenueSummaryOfBusinessResults',
+            'jpcrp_cor:RevenueKeyFinancialData',
 
             # 研究開発費
             'jpcrp_cor:ResearchAndDevelopmentExpensesResearchAndDevelopmentActivities',
@@ -56,11 +58,20 @@ def format_data(data):
             # 役員の状況
             'jpcrp_cor:InformationAboutOfficersTextBlock',
             ]
+    include_str1 = 'NetSalesOfCompletedConstructionContractsSummaryOfBusinessResults'
+    include_str2 = 'NetSalesIFRSSummaryOfBusinessResults'
+    include_str3 = 'NetSalesAndOtherOperatingRevenueSummaryOfBusinessResults'
+    include_str4 = 'NetSalesAndOperatingRevenue2SummaryOfBusinessResults'
     result = data[
             ((data['ユニットID'].isin(['JPY', 'JPYPerShares', 'pure', 'shares'])) &
             (data['相対年度'].isin(['当期', '当期末', '提出日時点'])) &
             (data['コンテキストID'].isin(required_context)) &
             (data['要素ID'].isin(required_field))) |
-            (data['要素ID'].isin(required_text))
+            (data['要素ID'].isin(required_text)) |
+            (data['要素ID'].str.contains(include_str1, na=False)) |
+            (data['要素ID'].str.contains(include_str2, na=False)) |
+            (data['要素ID'].str.contains(include_str3, na=False)) |
+            (data['要素ID'].str.contains(include_str4, na=False)) |
+            ((data['要素ID'] == 'jpcrp_cor:RateOfReturnOnEquitySummaryOfBusinessResults'))
             ]
     return result

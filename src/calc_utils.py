@@ -48,11 +48,15 @@ def calc_row_string_data(data, element_id, context_id):
         result = data.loc[0, '値']
     return result
 
-def calc_row_data_str(data, include_str):
+def calc_row_data_str(data, include_str, context_id):
     row_data_row = data[
-            (data['要素ID'].str.contains(include_str, na=False))
+            (data['要素ID'].str.contains(include_str, na=False)) &
+            (data['コンテキストID'] == context_id)
                         ].reset_index(drop=True)
     if len(row_data_row) == 0:
-        return None, None
+        return None
+    elif len(row_data_row) == 1:
+        return (row_data_row.loc[0, '値'])
     else:
-        return (row_data_row.loc[0, '値']), (row_data_row.loc[1, '値'])
+        print(len(row_data_row))
+        return (row_data_row.loc[0, '値'])
