@@ -113,6 +113,16 @@ def search_yen(text):
             except ValueError:
                 pass
 
+    pattern01 = r'(\d+)千万円'
+    matches = re.findall(pattern01, text)
+    if matches:
+        for matche in matches:
+            try:
+                value = int(matche) * 10000000
+                values.append(value)
+            except ValueError:
+                pass
+
     pattern01 = r'(\d+)百万円'
     matches = re.findall(pattern01, text)
     if matches:
@@ -122,6 +132,17 @@ def search_yen(text):
                 values.append(value)
             except ValueError:
                 pass
+
+    pattern01 = r'(\d+)万円'
+    matches = re.findall(pattern01, text)
+    if matches:
+        for matche in matches:
+            try:
+                value = int(matche) * 10000
+                values.append(value)
+            except ValueError:
+                pass
+
     pattern01 = r'(\d+)千円'
     matches = re.findall(pattern01, text)
     if matches:
